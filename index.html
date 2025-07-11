@@ -1,0 +1,77 @@
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec'; // ⚠️ 請換成你的 Apps Script 網址
+
+async function main() {
+  await liff.init({ liffId: 'YOUR_LIFF_ID' }); // ⚠️ 請替換成你的 LIFF ID
+
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+
+  const profile = await liff.getProfile();
+  const userId = profile.userId;
+
+  // 將 userId 寫入隱藏欄位
+  document.getElementById('userId').value = userId;
+
+  document.getElementById('surveyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const data = {
+      userId,
+      phone: document.getElementById('phone').value,
+      age: getRadioValue('age'),
+      gender: getRadioValue('gender'),
+      region: getRadioValue('region'),
+
+      buyFreq: getRadioValue('buyFreq'),
+      buyPlace: getCheckboxValues('buyPlace'),
+      buyTime: getRadioValue('buyTime'),
+      buyMeal: getRadioValue('buyMeal'),
+
+      buyConcern: getCheckboxValues('buyConcern'),
+      extraPay: getRadioValue('extraPay'),
+      bakeFav: getCheckboxValues('bakeFav'),
+      tasteFav: getCheckboxValues('tasteFav'),
+      natural: getRadioValue('natural'),
+
+      favBread: document.getElementById('favBread').value,
+      rareBread: document.getElementById('rareBread').value
+    };
+
+    try {
+      const res = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+
+      const result = await res.json();
+      if (result.status === 'success') {
+        alert('提交成功！感謝你的填寫 ❤️');
+        // 可選：跳轉頁面或關閉 LIFF
+        // liff.closeWindow();
+      } else {
+        alert('提交失敗，請稍後再試');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('提交時發生錯誤');
+    }
+  });
+}
+
+// 工具函式
+function getRadioValue(name) {
+  const selected = document.querySelector(`input[name="${name}"]:checked`);
+  return selected ? selected.value : '';
+}
+
+function getCheckboxValues(name) {
+  return Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(el => el.value);
+}
+
+main();
+</script>
