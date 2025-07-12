@@ -5,12 +5,13 @@ const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwff4-H8o_MtW
 async function main() {
   await liff.init({ liffId: '2007735873-r50VjEKP' }); // ⚠️ 請替換成你的 LIFF ID
 
+  // 測試是否成功載入
+  document.body.innerHTML += "<p>LIFF 已初始化</p>";
   if (!liff.isLoggedIn()) {
     liff.login();
     return;
 
-  // 測試是否成功載入
-  document.body.innerHTML += "<p>LIFF 已初始化</p>";
+  
   }
 
   const profile = await liff.getProfile();
